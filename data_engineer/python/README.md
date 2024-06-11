@@ -168,3 +168,75 @@ if __name__ == '__main__':
     * average_comments_per_post
    
 3. Результат вывести в stdout (например `print`).
+   
+```python
+import requests
+
+def get_data(url):
+    # Функция для отправки GET-запроса по указанному URL и получения данных в формате JSON
+    response = requests.get(url)
+    return response.json()
+
+def calculate_average_comments(posts, comments):
+    # Функция для расчета среднего количества комментариев на пост для каждого пользователя
+    user_comments = {}
+    # Подсчет количества комментариев для каждого поста
+    for comment in comments:
+        post_id = comment['postId']
+        if post_id not in user_comments:
+            user_comments[post_id] = 0
+        user_comments[post_id] += 1
+    
+    user_posts = {}
+    # Подсчет общего количества постов и комментариев для каждого пользователя
+    for post in posts:
+        user_id = post['userId']
+        if user_id not in user_posts:
+            user_posts[user_id] = {'total_comments': 0, 'total_posts': 0}
+        user_posts[user_id]['total_posts'] += 1
+        if post['id'] in user_comments:
+            user_posts[user_id]['total_comments'] += user_comments[post['id']]
+    
+    # Расчет среднего количества комментариев на пост для каждого пользователя
+    average_comments = {}
+    for user_id, data in user_posts.items():
+        if data['total_posts'] > 0:
+            average_comments[user_id] = data['total_comments'] / data['total_posts']
+        else:
+            average_comments[user_id] = 0
+    
+    return average_comments
+
+def main():
+    # Основная функция программы
+    posts_url = 'http://jsonplaceholder.typicode.com/posts'
+    comments_url = 'http://jsonplaceholder.typicode.com/comments'
+    
+    # Получение данных о постах и комментариях
+    posts = get_data(posts_url)
+    comments = get_data(comments_url)
+    
+    # Расчет среднего количества комментариев на пост для каждого пользователя
+    average_comments = calculate_average_comments(posts, comments)
+    
+    # Вывод результатов
+    for user_id, avg_comments in average_comments.items():
+        print(f"user_id: {user_id}, average_comments_per_post: {avg_comments}")
+
+if __name__ == "__main__":
+    main()
+
+```
+
+```
+user_id: 1, average_comments_per_post: 5.0
+user_id: 2, average_comments_per_post: 5.0
+user_id: 3, average_comments_per_post: 5.0
+user_id: 4, average_comments_per_post: 5.0
+user_id: 5, average_comments_per_post: 5.0
+user_id: 6, average_comments_per_post: 5.0
+user_id: 7, average_comments_per_post: 5.0
+user_id: 8, average_comments_per_post: 5.0
+user_id: 9, average_comments_per_post: 5.0
+user_id: 10, average_comments_per_post: 5.0
+```
